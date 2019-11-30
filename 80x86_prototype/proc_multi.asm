@@ -4,18 +4,14 @@
 ; 输出 AL
 MULTI PROC NEAR
     PUSH BX
-    MOV BH, 7 ;循环次数
+    MOV BH, 8 ;循环次数
     MOV BL, 0
 PANDUAN:
-    TEST AH, 80H ;乘数当前位是否为1
-    JNZ LEIJIA
-YIWEI:
-    SHL AH, 1
+    ROL AH, 1
     SHL BL, 1
-    JMP XUNHUAN
-LEIJIA:
+    TEST AH, 1 ;乘数当前位是否为1
+    JZ XUNHUAN
     ADD BL, AL ;加上被乘数
-    JMP YIWEI
 XUNHUAN:
     SUB BH, 1
     JNZ PANDUAN
