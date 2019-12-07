@@ -1,3 +1,5 @@
+Include pslib.asm
+
 DATA SEGMENT
     ;used in main
     X0 DB 97
@@ -51,12 +53,27 @@ LCG ENDP
 ; 过程 AL <- AL*AH
 ; 输出 AL
 MULTI PROC NEAR
-    mul ah
-    ret
+    PUSH BX
+    MOV BH, 8 ;循环次数
+    MOV BL, 0
+    PANDUAN:
+    ROL AH, 1
+    SHL BL, 1
+    TEST AH, 1 ;乘数当前位是否为1
+    JZ XUNHUAN
+    ADD BL, AL ;加上被乘数
+    XUNHUAN:
+    SUB BH, 1
+    JNZ PANDUAN
+    MOV AL, BL ;AL存放结果
+    MOV AH, BH ;AH结果一定为零
+    POP BX
+    RET
 MULTI ENDP
 
 ; 用于输出AL中的内容
-; 整个此处子程序算作20行
+; 此子程序只用于 x86 原型，不会带入最终程序，所以没有任何指令范围限制
+; 整个此处子程序算作10行
 ; 输入 AL需要输出的值
 ; 过程 None
 ; 输出 None
@@ -88,5 +105,14 @@ OUTPUT PROC NEAR
     ret
 OUTPUT ENDP
 
+MY_PUSH_OPR PROC NEAR
+
+
+MY_PUSH_OPR ENDP
+
+
+MY_POP_OPR PROC NEAR
+
+MY_POP
 CODE ENDS
     END START
