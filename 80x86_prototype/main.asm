@@ -1,3 +1,5 @@
+Include pslib.asm
+
 DATA SEGMENT
     ;used in main
     X0 DB 97
@@ -70,7 +72,8 @@ MULTI PROC NEAR
 MULTI ENDP
 
 ; 用于输出AL中的内容
-; 整个此处子程序算作20行
+; 此子程序只用于 x86 原型，不会带入最终程序，所以没有任何指令范围限制
+; 整个此处子程序算作10行
 ; 输入 AL需要输出的值
 ; 过程 None
 ; 输出 None
@@ -102,5 +105,14 @@ OUTPUT PROC NEAR
     ret
 OUTPUT ENDP
 
+MY_PUSH_OPR PROC NEAR
+
+
+MY_PUSH_OPR ENDP
+
+
+MY_POP_OPR PROC NEAR
+
+MY_POP
 CODE ENDS
     END START

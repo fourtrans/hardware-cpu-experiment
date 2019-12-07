@@ -51,12 +51,15 @@ $$x_{n+1}=(a \cdot x_n + c)\ \%\ module$$
 本程序为了适应后续迁移需要，限制不适用 x86 自带的堆栈相关操作。故手动实现了堆栈。其中关键数据结构如下。
 |数据结构|作用|
 |:-|:-|
-|PS_BUFFER|存放堆栈数据的缓冲区基地址|
-|PS_TOP|栈顶指针|
+|PS_BUF|存放堆栈数据的缓冲区基地址|
+|PS_TOP|栈顶指针，总是指向下一个空位置|
 |PS_TMP|用于弹栈操作的临时区|
-<!-- |PS_TARGET|堆栈操作目标（寄存器）| -->
 
-## 接口设计（子程序/宏操作）
+TODO:FIX NOTE
+
+**NOTE:**  `PS_TMP` 用在需要操作IP的时候。弹栈时要先将内容装入临时区，再调整栈顶指针，再将临时区移动到IP中。
+
+## 接口设计（子程序）
 
 ### MULTI 子程序
 由于我们的 CPU 指令设计中没有乘法指令，故编写一段子程序进行乘法计算
@@ -84,6 +87,7 @@ $$x_{n+1}=(a \cdot x_n + c)\ \%\ module$$
 |**Process**|None|
 |**Output**|None|
 
+## 接口设计（宏操作）
 
 <!-- ### MY_PUSH_OPR 宏操作
 Pseudo Stack Push Operation 模拟栈的压栈操作
@@ -113,20 +117,93 @@ Pseudo Stack Pop Operation 模拟栈的弹栈操作
 
 弹栈操作中之所以要先减栈顶指针再移出数据是为了 -->
 
+### MY_PUSH_AL
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**|first `(PS_TOP)` <- `AL` then `PS_TOP` <- `PS_TOP + 1` |
+|**Output**|None|
+
+### MY_PUSH_AH
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**|first `(PS_TOP)` <- `AH` then `PS_TOP` <- `PS_TOP + 1` |
+|**Output**|None|
+
+### MY_PUSH_BL
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**|first `(PS_TOP)` <- `BL` then `PS_TOP` <- `PS_TOP + 1` |
+|**Output**|None|
+
+### MY_PUSH_BH
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**|first `(PS_TOP)` <- `BH` then `PS_TOP` <- `PS_TOP + 1` |
+|**Output**|None|
+
+### MY_PUSH_IP
+IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移量（因为手动实现的栈操作不止一条指令），然后再给栈指针加1。
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**|first `(PS_TOP)` <- `IP` then `(PS_TOP)` <- `(PS_TOP) + <offset>` then `PS_TOP` <- `PS_TOP + 2` |
+|**Output**|None|
+**NOTE:** 因为使用 80x86 环境模拟，ip操作需要 2 bytes。
+**NOTE:** 实际 80x86 模拟的时候使用LOCAL伪操作直接获取结束地址，而非 `+<offset>`。
+
+### MY_POP_AL
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**| _first_ `PS_TOP` <- `PS_TOP - 1` _then_ `AL` <- `(PS_TOP)`|
+|**Output**|None|
+
+### MY_POP_AH
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**| _first_ `PS_TOP` <- `PS_TOP - 1` _then_ `AH` <- `(PS_TOP)`|
+|**Output**|None|
+
+### MY_POP_BL
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**| _first_ `PS_TOP` <- `PS_TOP - 1` _then_ `BL` <- `(PS_TOP)`|
+|**Output**|None|
+
+### MY_POP_BH
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**| _first_ `PS_TOP` <- `PS_TOP - 1` _then_ `BH` <- `(PS_TOP)`|
+|**Output**|None|
+
+### MY_POP_IP
+|||
+|:-|:-|
+|**Input**|None|
+|**Process**| _first_ `PS_TOP` <- `PS_TOP - 2` _then_ `IP` <- `(PS_TOP)` |
+|**Output**|None|
+**NOTE:** 因为使用 80x86 环境模拟，ip操作需要 2 bytes。
 
 ### MY_PUSH 宏操作
 |||
 |:-|:-|
 |**Format**|`MY_PUSH <reg>`|
 |**Function**|将指定的寄存器压栈|
-是对 MY_PUSH_OPR 的一个简单包装
+是对 `MY_PUSH_<Reg>` 的一个简单包装
 
 ### MY_POP 宏操作
 |||
 |:-|:-|
 |**Format**|`MY_POP <reg>`|
 |**Function**|弹栈存入指定的寄存器|
-是对 MY_POP_OPR 的一个简单包装
+是对 `MY_POP_<Reg>` 的一个简单包装
 
 ### MY_NEAR_RET 宏操作
 |||
