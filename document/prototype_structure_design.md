@@ -15,10 +15,22 @@
 |:-:|:-|:-|
 |1|MOV||
 |2|ADD||
-|3|AND||
-|4|JMP||
-|5|JLE|相当于试验箱中BZC|
-|6|ROR||
+|3|SUB||
+|4|AND||
+|5|OR||
+
+|编号|指令|补充说明|
+|:-:|:-|:-|
+|1|JLE|相当于试验箱中BZC|
+|2|JMP|无条件跳转|
+
+|编号|指令|补充说明|
+|:-:|:-|:-|
+|1|ROR|右环移，第一选择，能选它就选它|
+|2|SHL|逻辑左移|
+|3|SHR|逻辑右移|
+|4|RCL|带进位循环左移|
+|5|RCR|带进位循环右移|
 
 
 另外关于程序量的限制：
@@ -145,7 +157,7 @@ Pseudo Stack Pop Operation 模拟栈的弹栈操作
 |**Process**|first `(PS_TOP)` <- `BH` then `PS_TOP` <- `PS_TOP + 1` |
 |**Output**|None|
 
-### MY_PUSH_IP
+<!-- ### MY_PUSH_IP
 IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移量（因为手动实现的栈操作不止一条指令），然后再给栈指针加1。
 |||
 |:-|:-|
@@ -153,7 +165,7 @@ IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移�
 |**Process**|first `(PS_TOP)` <- `IP` then `(PS_TOP)` <- `(PS_TOP) + <offset>` then `PS_TOP` <- `PS_TOP + 2` |
 |**Output**|None|
 **NOTE:** 因为使用 80x86 环境模拟，ip操作需要 2 bytes。
-**NOTE:** 实际 80x86 模拟的时候使用LOCAL伪操作直接获取结束地址，而非 `+<offset>`。
+**NOTE:** 实际 80x86 模拟的时候使用LOCAL伪操作直接获取结束地址，而非 `+<offset>`。 -->
 
 ### MY_POP_AL
 |||
@@ -183,13 +195,13 @@ IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移�
 |**Process**| _first_ `PS_TOP` <- `PS_TOP - 1` _then_ `BH` <- `(PS_TOP)`|
 |**Output**|None|
 
-### MY_POP_IP
+<!-- ### MY_POP_IP
 |||
 |:-|:-|
 |**Input**|None|
 |**Process**| _first_ `PS_TOP` <- `PS_TOP - 2` _then_ `IP` <- `(PS_TOP)` |
 |**Output**|None|
-**NOTE:** 因为使用 80x86 环境模拟，ip操作需要 2 bytes。
+**NOTE:** 因为使用 80x86 环境模拟，ip操作需要 2 bytes。 -->
 
 ### MY_PUSH 宏操作
 |||
@@ -205,7 +217,7 @@ IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移�
 |**Function**|弹栈存入指定的寄存器|
 是对 `MY_POP_<Reg>` 的一个简单包装
 
-### MY_NEAR_RET 宏操作
+<!-- ### MY_NEAR_RET 宏操作
 |||
 |:-|:-|
 |**Format**|`MY_NEAR_RET`|
@@ -215,4 +227,4 @@ IP入栈比较复杂，需要先将当前IP插入栈内，再加上一个偏移�
 |||
 |:-|:-|
 |**Format**|`MY_NEAR_CALL <proc>`|
-|**Function**|将当前 IP+1 压栈，保存下一条指令的位置，然后 jmp proc，在段内实现和 CALL 相同的功能|
+|**Function**|将当前 IP+1 压栈，保存下一条指令的位置，然后 jmp proc，在段内实现和 CALL 相同的功能| -->
